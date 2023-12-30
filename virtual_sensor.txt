@@ -1,0 +1,30 @@
+Virtual Sensor
+--------------
+USES:
+ - Anomaly detection as a digital twin
+ 	- Given hourly rainfall input, can detect anomalous readings
+ 	  which can happen either because the sensor malfunctioned or
+ 	  the environment changed
+ 	- If multiple sensors capture similar trend, the environment
+ 	  changed. If not, it is a sensor malfunction
+ 	  
+
+ - Data interpolation
+ 	- During sensor outage, the virtual data can reliably predict
+ 	  peak stream height which can be used for informed interpolation
+ 	
+ 	- Using the rainfall accumulation strategy below(offset for the time
+ 	  of interest), we can predict stream height in between sensor readings,
+ 	  even when the sensor is working nominaly.
+ 	  
+METHOD:
+1. Accumulate hourly rainfall
+	- Non-uniform time intervals are handled by creating minute level data which is accumulated in uniform hourly bins
+2. Water level data
+	- Hourly maximum is chosen
+3. Combined rainfall and waterlevel time series is created
+	- For each arbitrarily long rainfall event, data from timestamps 7 hours before and after is also preserved
+	- For each preserved timestamp, past rainfall in a 12hr window is calculated and stored
+4. An LSTM NN is trained using just rainfall as input to predict the current stream height
+	- 2 dim input feature vector - > [hourly rainfall;12 hr accumulation]
+	- Sequence length of 7 hours

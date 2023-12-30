@@ -1,0 +1,42 @@
+Notes & Comments
+----------------
+
+1. Weather station #2 and #3 have mostly consistent 5-6 minute data.
+	- Deleted some duplicate timestamps from #3(July)
+	- Deleted some sparse data from #2 7-28 to 8-03
+	- Occasional missed timestamps
+	
+2. Rainfall data processing
+	- Created 1m weather reading by averaging each entry over time delta
+	- Summed 1m averages to create any frequency greater than 6 minutes!
+	
+3. Runoff data processing
+	- NHC sensors have 11-12 minute OK/noisy data
+	- Interpolation between entries
+	- NHC_7 has 5-6 minute high quality data
+		- 4 hour time to concentration
+		- dynamics at any time stamp greater than 6 minutes!
+	- Using min() we can capture significant dynamics at HOURLY interval!
+		- Causes a temporal offset in readings but happens to both rainfall
+		and runoff, so not a problem.
+		- We do lose out on some potentially good training data, since
+		small rain events are not represented(because they accumulate.)
+	- Still need data for NHC1787
+
+4. Adding a second feature vector for cumulative rainfall in the past 24hrs
+	- Can no longer use the trailing hourly zeros after the previous rainfall
+		Need a way to fill (0,0) for the past entries for each isolated rain event
+	- 
+5. The data even before the intrduction of the 24 hr vector is not perfect. e.g.
+	can_delete is meant to just use precip and identify (7hr) windows of no rain.
+	If it can't see past data either due to start of the file or data not available
+	due to WS shut down, it leaves the row blank. What is deleted are rows that are
+	it is 100% sure are uninteresting or 0.
+	However, if both the WS and gauge data is not available, and there hasn't been any rain, it will admit the first point when the gage starts working
+
+
+6. We don't need to worry about guage data - N/A gage data will be taken out by the
+	dropna().
+	can_delete should not have to consider all previous points
+
+
