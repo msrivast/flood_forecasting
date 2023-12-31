@@ -38,5 +38,12 @@ Notes & Comments
 6. We don't need to worry about guage data - N/A gage data will be taken out by the
 	dropna().
 	can_delete should not have to consider all previous points
+	
+12/30/23 - Moving on to 15 minute data
+--------------------------------------
+1. Create a file with timed 15 minute rainfall and max river height in the last 15 minutes AND accumulated rainfall in past 12 hours
+2. Train with a 7h*4 length sequence. The second element is rainfall in the past 12 hours
+3. Max river height offsets the statistics to the right
+
 
 

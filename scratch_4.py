@@ -18,9 +18,9 @@ df = df.set_index('datetime')
 # See note below
 # df['precip_past_24'] = df['precip'].rolling(window='24H',min_periods=1).sum()
 df['precip_past_12'] = df['precip'].rolling(window='12H',min_periods=1).sum()
-df['can_delete'] = df['precip'].rolling(window=7,min_periods=1).sum()
+df['can_delete'] = df['precip'].rolling(window=7,min_periods=1).sum() #7 hours after the end of rainfall
 df['valid'] = df.can_delete != 0 # All valid sequence start points are marked
-df['can_delete'] = df['can_delete'].rolling(window=7, min_periods=1).sum().shift(-6)
+df['can_delete'] = df['can_delete'].rolling(window=7, min_periods=1).sum().shift(-6) #7 hours before the start of rainfall
 # df=df.dropna(subset='can_delete')
 df_curated = df[df.can_delete != 0].drop(['can_delete'], axis=1)
 # df_curated = df

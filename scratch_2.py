@@ -57,4 +57,3 @@ df_curated.to_csv('curated_7_past_24.csv',float_format='%.3f')
 # plt.plot(df_curated['precip'])
 # plt.twinx().plot(850 - df_curated['level'], c = 'magenta', alpha = 0.7)
 # plt.show()
-
