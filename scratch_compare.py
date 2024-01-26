@@ -4,7 +4,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-df = pd.read_csv('curated_7_better.csv', usecols=['datetime','precip'])
+# df = pd.read_csv('curated_7_better.csv', usecols=['datetime','precip'])
+df = pd.read_csv('curated_15m_7_past_12.csv', usecols=['datetime','precip'])
 df['datetime'] = pd.to_datetime(df['datetime'])
 
 # df = df[df["datetime"]>pd.Timestamp("2022-02-17 00:00")]
@@ -35,8 +36,9 @@ df['datetime'] = pd.to_datetime(df['datetime'])
 
 df = df.set_index('datetime')
 
-# df_out = pd.read_csv('predictions.csv')
-df_out = pd.read_csv('predictions_12H_32N_32N_2kE.csv')
+df_out = pd.read_csv('predictions.csv')
+# df_out = pd.read_csv('predictions_15m_64BS_8kE.csv')
+# df_out = pd.read_csv('predictions_12H_32N_32N_2kE.csv')
 # df_out = pd.read_csv('predictions_7seqlen_16N_9kE.csv')
 # df_out = pd.read_csv('predictions_14N_14kE_BS4.csv')
 # df_out = pd.read_csv('predictions _lowlr_1000epochs.csv')
@@ -88,7 +90,8 @@ df_out['datetime'] = pd.to_datetime(df_out['datetime'])
 df_out = df_out.set_index('datetime')
 fig, ax1 = plt.subplots()
 ax1.plot(850-df_out['level'])
-ax1.plot(850-df_out['Model forecast'], alpha = 0.7)
+# ax1.plot(850-df_out['Model forecast'], alpha = 0.7)
+ax1.plot(850-df_out['forecast'], alpha = 0.7)
 plt.title("NHC7: Rainfall vs Stream level and Prediction(mm)")
 plt.legend(["level", "prediction"],loc=4)
 plt.ylabel("Stream height change (mm)")
@@ -99,6 +102,6 @@ plt.gca().invert_yaxis()
 plt.ylabel("Hourly rainfall (mm)")
 plt.legend(["rainfall"],loc=2)
 
-plt.savefig("NHC7_virtual_sensor.pdf",bbox_inches='tight')
+# plt.savefig("NHC7_virtual_sensor.pdf",bbox_inches='tight')
 fig.tight_layout()
 plt.show()

@@ -50,7 +50,7 @@ plt.show()
 df['precip_past_12'] = df['precip'].rolling(window='12H',min_periods=1).sum()
 df['can_delete'] = df['precip'].rolling(window=28,min_periods=1).sum() #7 hours after the end of 15-minute rainfall
 df['valid'] = df.can_delete != 0 # All valid sequence start points are marked
-df['can_delete'] = df['can_delete'].rolling(window=28, min_periods=1).sum().shift(-6) #7 hours before the start of 15-minute rainfall
+df['can_delete'] = df['can_delete'].rolling(window=28, min_periods=1).sum().shift(-27) #7 hours before the start of 15-minute rainfall
 # df=df.dropna(subset='can_delete')
 df_curated = df[df.can_delete != 0].drop(['can_delete'], axis=1)
 # df_curated = df

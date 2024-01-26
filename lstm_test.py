@@ -3,6 +3,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import torch
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+print('Using device:', device)
 from torch.utils.data import DataLoader
 from torch import nn
 from dataset_test import SequenceDataset
@@ -10,7 +12,7 @@ from neuralnet import ShallowRegressionLSTM
 # from soft_dtw_cuda import SoftDTW
 
 
-df = pd.read_csv('curated_7_past_12.csv')
+df = pd.read_csv('curated_15m_7_past_12.csv')
 df = df.set_index('datetime')
 
 # Divide train and test
@@ -39,7 +41,7 @@ for c in df_train.columns:
     if (c == 'valid'):
         continue
     # if (c == target): #
-    mean = df_train[df_train.valid][c].mean() 
+    mean = df_train[df_train.valid][c].mean() # This makes more sense than considering the added hourly zeros again for the mean calculation
     stdev = df_train[df_train.valid][c].std()
     # else:
     #     mean = df_train[c].mean()
@@ -51,7 +53,7 @@ for c in df_train.columns:
 # print(df_test)
 
 i = 25
-sequence_length = 7
+sequence_length = 28 #7
 
 train_dataset = SequenceDataset(
     df_train,
@@ -72,7 +74,7 @@ test_dataset = SequenceDataset(
 # print(y)
 
 torch.manual_seed(99)
-batch_size=4
+batch_size=64
 
 train_loader = DataLoader(train_dataset, batch_size, shuffle=True)
 test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
@@ -84,9 +86,9 @@ print("Target shape:", y.shape)
 
 
 learning_rate = 5e-5
-num_hidden_units = 32
+num_hidden_units = 64
 
-model = ShallowRegressionLSTM(num_features=2, hidden_units=num_hidden_units)
+model = ShallowRegressionLSTM(num_features=2, hidden_units=num_hidden_units).to(device)
 loss_function = nn.MSELoss()
 # loss_function = SoftDTW(gamma=1.0, normalize=True) # just like nn.MSELoss()
 # loss_function = SoftDTW(use_cuda=False, gamma=1.0, normalize=False)
@@ -98,6 +100,7 @@ def train_model(data_loader, model, loss_function, optimizer):
     model.train()
     
     for X, y in data_loader:
+        X, y = X.to(device), y.to(device)
         output = model(X)
         loss = loss_function(output, y)
         # loss = loss.mean()
@@ -121,6 +124,7 @@ def test_model(data_loader, model, loss_function):
     model.eval()
     with torch.no_grad():
         for X, y in data_loader:
+            X, y = X.to(device), y.to(device)
             output = model(X)
             # print(y*target_stdev + target_mean,output*target_stdev + target_mean)
             # print(X*precip_stdev + precip_mean)
@@ -135,7 +139,7 @@ print("Untrained test\n--------")
 test_model(test_loader, model, loss_function)
 print()
 
-for ix_epoch in range(2000):
+for ix_epoch in range(8000):
     print(f"Epoch {ix_epoch}\n---------")
     train_loss = train_model(train_loader, model, loss_function, optimizer=optimizer)
     test_loss = test_model(test_loader, model, loss_function)
@@ -149,10 +153,11 @@ for ix_epoch in range(2000):
 
 def predict(data_loader, model):
 
-    output = torch.tensor([])
+    output = torch.tensor([],device=device)
     model.eval()
     with torch.no_grad():
         for X, _ in data_loader:
+            X = X.to(device)
             y_star = model(X)
             # output = torch.cat((output, y_star.flatten()), 0)
             output = torch.cat((output, y_star), 0)
@@ -162,14 +167,14 @@ def predict(data_loader, model):
 
 train_eval_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=False)
 
-ystar_col = "Model forecast"
+ystar_col = "forecast"
 
 # Discard the rows that were just used in the training
 df_train = df_train[df_train.valid]
 df_test = df_test[df_test.valid]
 
-df_train[ystar_col] = predict(train_eval_loader, model).numpy()
-df_test[ystar_col] = predict(test_loader, model).numpy()
+df_train[ystar_col] = predict(train_eval_loader, model).cpu().numpy()
+df_test[ystar_col] = predict(test_loader, model).cpu().numpy()
 
 df_out = pd.concat((df_train, df_test))[['level', ystar_col]]
 # df_out['datetime'] = pd.to_datetime(df_out['datetime'])
@@ -180,12 +185,12 @@ for c in df_out.columns:
     df_out[c] = df_out[c] * target_stdev + target_mean
 
 print(df_out)
-df_out.to_csv('predictions.csv')
+df_out.to_csv('predictions.csv', float_format='%.1f')
 
 
 
 plt.plot(850-df_out['level'])
-plt.plot(850-df_out['Model forecast'], alpha = 0.7)
+plt.plot(850-df_out['forecast'], alpha = 0.7)
 plt.title("Water level vs prediction(mm)")
 plt.legend(["level", "prediction"])
 plt.ylabel("mm")
