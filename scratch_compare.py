@@ -5,7 +5,8 @@ import numpy as np
 import pandas as pd
 
 # df = pd.read_csv('curated_7_better.csv', usecols=['datetime','precip'])
-df = pd.read_csv('curated_15m_7_past_12.csv', usecols=['datetime','precip'])
+df = pd.read_csv('curated_15m_7_past_12_test.csv', usecols=['datetime','precip'])
+# df = pd.read_csv('curated_7_past_12_test.csv', usecols=['datetime','precip'])
 df['datetime'] = pd.to_datetime(df['datetime'])
 
 # df = df[df["datetime"]>pd.Timestamp("2022-02-17 00:00")]
@@ -36,7 +37,8 @@ df['datetime'] = pd.to_datetime(df['datetime'])
 
 df = df.set_index('datetime')
 
-df_out = pd.read_csv('predictions.csv')
+# df_out = pd.read_csv('predictions.csv')
+df_out = pd.read_csv('predictions_rnd_15m_28N_1L_8kE.csv')
 # df_out = pd.read_csv('predictions_15m_64BS_8kE.csv')
 # df_out = pd.read_csv('predictions_12H_32N_32N_2kE.csv')
 # df_out = pd.read_csv('predictions_7seqlen_16N_9kE.csv')
@@ -88,6 +90,8 @@ df_out['datetime'] = pd.to_datetime(df_out['datetime'])
 # plt.show()
 
 df_out = df_out.set_index('datetime')
+df_out = df_out[df_out.test]
+
 fig, ax1 = plt.subplots()
 ax1.plot(850-df_out['level'])
 # ax1.plot(850-df_out['Model forecast'], alpha = 0.7)
@@ -97,6 +101,7 @@ plt.legend(["level", "prediction"],loc=4)
 plt.ylabel("Stream height change (mm)")
 plt.xticks(rotation=45)
 # ax2=ax1.twiny()
+# plt.twinx().plot(df.loc[df_out.index]['precip'], c='lightsteelblue', alpha = 0.9)
 plt.twinx().plot(df['precip'], c='lightsteelblue', alpha = 0.9)
 plt.gca().invert_yaxis()
 plt.ylabel("Hourly rainfall (mm)")

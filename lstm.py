@@ -31,6 +31,7 @@ df = df.set_index('datetime')
 
 # Divide train and test
 test_start = "2022-09-15"
+# test_start = "2022-03-01"
 
 df_train = df.loc[:test_start].copy()
 df_test = df.loc[test_start:].copy()
@@ -165,58 +166,79 @@ print("Untrained test\n--------")
 test_model(test_loader, model, loss_function)
 print()
 
-# for ix_epoch in range(2):
-#     print(f"Epoch {ix_epoch}\n---------")
-#     train_loss = train_model(train_loader, model, loss_function, optimizer=optimizer)
-#     test_loss = test_model(test_loader, model, loss_function)
-#     print()
-#     # if(train_loss - test_loss <= 0.01):
-#     # if(test_loss - train_loss >= 0.15):
-#     if(train_loss < 0.1):
-#         break
+for ix_epoch in range(2000):
+    print(f"Epoch {ix_epoch}\n---------")
+    train_loss = train_model(train_loader, model, loss_function, optimizer=optimizer)
+    test_loss = test_model(test_loader, model, loss_function)
+    print()
+    # if(train_loss - test_loss <= 0.01):
+    # if(test_loss - train_loss >= 0.15):
+    if(train_loss < 0.1):
+        break
 
 
 
 
-# def predict(data_loader, model):
+def predict(data_loader, model):
 
-#     output = torch.tensor([])
-#     model.eval()
-#     with torch.no_grad():
-#         for X, _ in data_loader:
-#             y_star = model(X)
-#             output = torch.cat((output, y_star), 0)
+    output = torch.tensor([])
+    model.eval()
+    with torch.no_grad():
+        for X, _ in data_loader:
+            y_star = model(X)
+            output = torch.cat((output, y_star), 0)
     
-#     return output
+    return output
 
 
-# train_eval_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=False)
+train_eval_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=False)
 
-# ystar_col = "Model forecast"
-# df_train[ystar_col] = predict(train_eval_loader, model).numpy()
-# df_test[ystar_col] = predict(test_loader, model).numpy()
+ystar_col = "forecast"
+df_train[ystar_col] = predict(train_eval_loader, model).numpy()
+df_test[ystar_col] = predict(test_loader, model).numpy()
 
-# df_out = pd.concat((df_train, df_test))[[target, ystar_col]]
-# # df_out['datetime'] = pd.to_datetime(df_out['datetime'])
+df_out = pd.concat((df_train, df_test))[[target, ystar_col]]
+# df_out['datetime'] = pd.to_datetime(df_out['datetime'])
+
+for c in df_out.columns:
+    df_out[c] = df_out[c] * target_stdev + target_mean
 
 # for c in df_out.columns:
-#     df_out[c] = df_out[c] * target_stdev + target_mean
+    # df_out[c] = df_out[c] * target_max + target_min
 
-# # for c in df_out.columns:
-#     # df_out[c] = df_out[c] * target_max + target_min
+# for c in df_out.columns:
+#     df_out[c] -= (-1)
+#     df_out[c] = df_out[c] * target_max/2 + target_min
 
-# # for c in df_out.columns:
-# #     df_out[c] -= (-1)
-# #     df_out[c] = df_out[c] * target_max/2 + target_min
+print(df_out)
+df_out.to_csv('predictions.csv')
 
-# print(df_out)
-# # df_out.to_csv('predictions.csv')
+# print("Full dataset: ")
+# print("-------------")
+res = df_out['level'].sub(df_out['forecast']).pow(2).sum()
+tot = df_out['level'].sub(df_out['level'].mean()).pow(2).sum()
+r2 = 1 - res/tot
+print("R2 FULL: ", r2)
 
+# print("Train dataset: ")
+# print("-------------")
+res = df_out.loc[:test_start]['level'].sub(df_out.loc[:test_start]['forecast']).pow(2).sum()
+tot = df_out.loc[:test_start]['level'].sub(df_out.loc[:test_start]['level'].mean()).pow(2).sum()
+r2 = 1 - res/tot
+print("R2 TRAIN: ", r2)
 
+# print("Test dataset: ")
+# print("-------------")
+res = df_out.loc[test_start:]['level'].sub(df_out.loc[test_start:]['forecast']).pow(2).sum()
+# print(res)
+tot = df_out.loc[test_start:]['level'].sub(df_out.loc[test_start:]['level'].mean()).pow(2).sum()
+# print(tot)
+r2 = 1 - res/tot
+print("R2 TEST: ", r2)
 
-# plt.plot(850-df_out[target])
-# plt.plot(850-df_out['Model forecast'], alpha = 0.7)
-# plt.title("Water level vs prediction(mm)")
-# plt.legend(["level", "prediction"])
-# plt.ylabel("mm")
-# plt.show()
+plt.plot(850-df_out[target])
+plt.plot(850-df_out['forecast'], alpha = 0.7)
+plt.title("Water level vs prediction(mm)")
+plt.legend(["level", "prediction"])
+plt.ylabel("mm")
+plt.show()

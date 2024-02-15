@@ -57,5 +57,16 @@ df_curated = df[df.can_delete != 0].drop(['can_delete'], axis=1)
 
 df_curated = df_curated.dropna()
 
+# print(df_curated)
+# df_curated.to_csv('curated_15m_7_past_12.csv',float_format='%.3f')
+
+# Code to create a boolean column marking test rows
+
+a = np.where(df_curated['valid'])[0]
+# r = np.random.choice(a, 1719, replace=False)
+r = np.random.choice(a, 0, replace=False)
+
+df_curated['test'] = False
+df_curated.test.iloc[[r]] = True
+df_curated.to_csv('curated_15m_7_past_12_test_small.csv',float_format='%.3f')
 print(df_curated)
-df_curated.to_csv('curated_15m_7_past_12.csv',float_format='%.3f')

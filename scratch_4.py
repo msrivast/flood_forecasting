@@ -28,12 +28,22 @@ df_curated = df[df.can_delete != 0].drop(['can_delete'], axis=1)
 df_curated = df_curated.dropna()
 
 
-df_curated.to_csv('curated_7_past_12.csv',float_format='%.3f')
+# df_curated.to_csv('curated_7_past_12.csv',float_format='%.3f')
+
 # df_curated.to_csv('curated_7_better.csv')
 # df_curated.to_csv('test.csv')
 # plt.plot(df_curated['precip'])
 # plt.twinx().plot(850 - df_curated['level'], c = 'magenta', alpha = 0.7)
 # plt.show()
+
+a = np.where(df_curated['valid'])[0]
+# r = np.random.choice(a, 1719, replace=False)
+r = np.random.choice(a, 435, replace=False)
+
+df_curated['test'] = False
+df_curated.test.iloc[[r]] = True
+df_curated.to_csv('curated_7_past_12_test.csv',float_format='%.3f')
+print(df_curated)
 
 # There are ~10 consecutive zeros at 8/03
 

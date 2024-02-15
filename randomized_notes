@@ -1,0 +1,42 @@
+Epoch 3999 32 N
+---------
+Train loss: 0.0948222591118379
+Test loss: 0.2276194350173076
+
+Epoch 7999 28N
+---------
+Train loss: 0.069150645095347
+Test loss: 0.2268266465894326
+
+2022-05-25 02:15:00,0.136,730.000,26.231,True,False
+precip            0.037527
+level            -6.443352
+precip_past_12    2.436242
+valid                 True
+test                 False
+forecast         -1.585787
+predict                NaN
+Name: 2022-05-25 02:15:00, dtype: object
+
+2022-05-25 01:45:00,0.567,761.000,25.795,True,True
+precip            0.841924
+level            -4.664309
+precip_past_12    2.385602
+valid                 True
+test                  True
+forecast               NaN
+predict           -0.77415
+Name: 2022-05-25 01:45:00, dtype: object
+
+
+Epoch 9999 20N
+---------
+Train loss: 0.08848214657469229
+Test loss: 0.34864739685629803
+
+
+Hourly training with test in the later part of the year
+-----------------------------------------------------
+R2 FULL:  0.850512251178599
+R2 TRAIN:  0.8825337097614108
+R2 TEST:  0.47554806134154304
