@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 
 # df = pd.read_csv('curated_7_better.csv', usecols=['datetime','precip'])
-df = pd.read_csv('curated_15m_7_past_12_test.csv', usecols=['datetime','precip'])
+df = pd.read_csv('NHC7_curated_15m_7_past_12_test_large_rain.csv', usecols=['datetime','precip'])
 # df = pd.read_csv('curated_7_past_12_test.csv', usecols=['datetime','precip'])
 df['datetime'] = pd.to_datetime(df['datetime'])
 
@@ -37,8 +37,9 @@ df['datetime'] = pd.to_datetime(df['datetime'])
 
 df = df.set_index('datetime')
 
-# df_out = pd.read_csv('predictions.csv')
-df_out = pd.read_csv('predictions_rnd_15m_28N_1L_8kE.csv')
+df_out = pd.read_csv('predictions.csv')
+# df_out = pd.read_csv('predictions_NHC7_rnd_15m_28N_2L_8kE.csv')
+# df_out = pd.read_csv('predictions_rnd_15m_28N_1L_8kE.csv')
 # df_out = pd.read_csv('predictions_15m_64BS_8kE.csv')
 # df_out = pd.read_csv('predictions_12H_32N_32N_2kE.csv')
 # df_out = pd.read_csv('predictions_7seqlen_16N_9kE.csv')
@@ -104,7 +105,7 @@ plt.xticks(rotation=45)
 # plt.twinx().plot(df.loc[df_out.index]['precip'], c='lightsteelblue', alpha = 0.9)
 plt.twinx().plot(df['precip'], c='lightsteelblue', alpha = 0.9)
 plt.gca().invert_yaxis()
-plt.ylabel("Hourly rainfall (mm)")
+plt.ylabel("Rainfall (mm)")
 plt.legend(["rainfall"],loc=2)
 
 # plt.savefig("NHC7_virtual_sensor.pdf",bbox_inches='tight')

@@ -8,6 +8,9 @@ matplotlib = "*"
 pandas = "*"
 torch = "*"
 pyqt5 = "*"
+pyarrow = "*"
+scikit-learn = "*"
+sktime = "*"
 
 [dev-packages]
 

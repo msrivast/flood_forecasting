@@ -7,13 +7,14 @@ class ShallowRegressionLSTM(nn.Module):
         super().__init__()
         self.num_features = num_features  # this is the number of features
         self.hidden_units = hidden_units
-        self.num_layers = 2
+        self.num_layers = 4
 
         self.lstm = nn.LSTM(
             input_size=num_features,
             hidden_size=hidden_units,
             batch_first=True,
-            num_layers=self.num_layers
+            num_layers=self.num_layers,
+            dropout=0.0
         )
 
         self.linear = nn.Linear(in_features=self.hidden_units, out_features=1)

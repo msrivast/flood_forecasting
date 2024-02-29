@@ -197,6 +197,12 @@ ystar_col = "forecast"
 df_train[ystar_col] = predict(train_eval_loader, model).numpy()
 df_test[ystar_col] = predict(test_loader, model).numpy()
 
+# print("Train NN MSE loss:", type(loss_function(torch.tensor(df_train['forecast'].values).float(),torch.tensor(df_train['level'].values).float()).item()))
+# print("Test NN MSE loss:", loss_function(torch.tensor(df_test['forecast'].values).float(),torch.tensor(df_test['level'].values).float()).item())
+
+# print("train MSE: ", type((np.square(df_train.level.values - df_train.forecast.values)).mean()))
+# print("test MSE: ", (np.square(df_test.level.values - df_test.forecast.values)).mean())
+
 df_out = pd.concat((df_train, df_test))[[target, ystar_col]]
 # df_out['datetime'] = pd.to_datetime(df_out['datetime'])
 

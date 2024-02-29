@@ -13,7 +13,7 @@ from neuralnet import ShallowRegressionLSTM
 # from soft_dtw_cuda import SoftDTW
 
 
-df = pd.read_csv('curated_15m_7_past_12_test.csv')
+df = pd.read_csv('NHC7_curated_15m_7_past_12_test_large_rain.csv')
 df = df.set_index('datetime')
 
 # # Divide train and test
@@ -30,7 +30,8 @@ df = df.set_index('datetime')
 target = 'level'
 # target = 'level_diff'
 # features= ['precip', 'precip_past_24']
-features= ['precip', 'precip_past_12']
+# features= ['precip', 'precip_past_12']
+features= ['precip']
 
 # # Standardize the data
 target_mean = df[(df.valid) & (~(df.test))][target].mean()
@@ -54,7 +55,7 @@ for c in df.columns:
 
 # print(df_test)
 
-i = 25
+i = 1
 sequence_length = 28 #7
 
 train_dataset = SequenceDataset(
@@ -73,7 +74,7 @@ test_dataset = SequenceDataset(
     test = True
 )
 
-# X, y = train_dataset[i]
+# X, y = test_dataset[i]
 # print(X)
 # print(y)
 
@@ -91,7 +92,11 @@ print("Target shape:", y.shape)
 
 
 learning_rate = 5e-5
-num_hidden_units = 28
+# num_hidden_units = 28
+num_hidden_units = 64
+
+# def loss_function(pred,label):
+#     return torch.tensor(np.square((pred - label).detach().numpy()).mean()).double()
 
 model = ShallowRegressionLSTM(num_features=len(features), hidden_units=num_hidden_units).to(device)
 loss_function = nn.MSELoss()
@@ -144,7 +149,7 @@ print("Untrained test\n--------")
 test_model(test_loader, model, loss_function)
 print()
 
-for ix_epoch in range(500):
+for ix_epoch in range(50):
     print(f"Epoch {ix_epoch}\n---------")
     train_loss = train_model(train_loader, model, loss_function, optimizer=optimizer)
     test_loss = test_model(test_loader, model, loss_function)
@@ -177,21 +182,34 @@ ystar_col = "forecast"
 # Discard the rows that were just used in the training
 # df_train = df_train[df_train.valid]
 # df_test = df_test[df_test.valid]
-df = df[df.valid]
+# df = df[df.valid] #BUG: Was sending the modified dataloader without the 12H zeros to the training and testing df for prediction
+train = predict(train_eval_loader, model).cpu().numpy()
+test = predict(test_loader, model).cpu().numpy()
+print(len(train))
+print(len(test))
+print("Train NN MSE loss:", loss_function(torch.tensor(train).float(),torch.tensor(df[(df.valid)&~(df.test)]['level'].values).float()))
+print("Test NN MSE loss:", loss_function(torch.tensor(test).float(),torch.tensor(df[(df.valid)&(df.test)]['level'].values).float()))
+df.loc[(df.valid)&~(df.test), ystar_col] = train
+df.loc[(df.valid)&(df.test), ystar_col] = test
 
-df.loc[~(df.test), ystar_col] = predict(train_eval_loader, model).cpu().numpy()
-df.loc[(df.test), ystar_col] = predict(test_loader, model).cpu().numpy()
+df_new = df[df.valid].copy()
 
 # print(df.iloc[2971])
 
-df_out = df[['level',ystar_col,'test']]
+df_out = df_new[['level',ystar_col,'test']].copy()
+
+dfp_train = df_out[~df_out.test]
+print("train MSE: ", (np.square(dfp_train.level - dfp_train.forecast)).mean())
+dfp_test = df_out[df_out.test]
+print("test MSE: ", (np.square(dfp_test.level - dfp_test.forecast)).mean())
+
 
 for c in df_out.columns:
     if (c == 'test'):
         continue
     df_out[c] = df_out[c] * target_stdev + target_mean
 
-print(df_out.iloc[2971])
+# print(df_out.iloc[2971])
 
 # # print(df_out[df_out.test])
 df_out.to_csv('predictions.csv', float_format='%.0f')

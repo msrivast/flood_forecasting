@@ -1,0 +1,66 @@
+1. NHC 296 and NHC 1697 are going to be the other sensor locations
+2. Signal processing will be needed to remove the noise from the sensors
+
+NHC 1697
+--------
+- WS3
+- Rainfall less than 0.2mm over 15 minute window was set to 0 to remove the noise in the signal
+- Total valid datapoints - 3227
+- Testing datapoints - 650
+
+NHC 296
+--------
+- WS2
+- Rainfall less than 0.2mm over 15 minute window was set to 0 to remove the noise in the signal
+- Total valid data points - 3127
+- Testing datapoint - 620
+
+--Not implemented but something to do - Use hampel filter to determine outliers, smooth the rest of the datapoints without the outliers
+
+NHC 7
+-------
+- WS2
+- Rainfall less than 0.2mm over 15 minute window was set to 0 to remove the noise in the signal
+- Data suggests that I probably need to look at the water level 18 hours out. That's how long the level remains elevated.
+- Total valid datapoints - 3038
+- Testing datapoints - 608
+
+
+Training
+-------------------------------
+    NHC7 8k 28N 2L no dropout
+    Epoch 7999
+---------
+Train loss: 0.061708348901256135
+Test loss: 0.22781171947717666
+
+
+    NHC7 8k 28N 2L 0.5 dropout
+Epoch 7999
+---------
+Train loss: 0.11525716750245345
+Test loss: 0.2273321583867073
+
+NHC7 8k 28N 2L 0.3 dropout
+Epoch 7999
+---------
+Train loss: 0.08857611998131401
+Test loss: 0.2271512571722269
+
+NHC7 8k 32N 2L 0.3 dropout
+Epoch 7999
+---------
+Train loss: 0.05721088131203463
+Test loss: 0.24117110539227724
+
+NHC7 8k 28N 2L 0 dropout removed 12h feature
+Epoch 7999
+---------
+Train loss: 0.09193816359497999
+Test loss: 0.38699024766683576
+
+NHC7 5k 28N 2L 0 dropout seq len 20, tracks the may-25 peak better
+Epoch 4999
+---------
+Train loss: 0.09112768032048878
+Test loss: 0.3174932114779949
