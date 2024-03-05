@@ -82,7 +82,7 @@ A = np.append(A,np.ones([len(A),1]),1)
 # w = np.linalg.pinv(A.transpose()@np.diag(max(b) - b + 0.1)@A)@A.transpose()@np.diag(max(b) - b + 0.1)@b
 # w = np.linalg.pinv(A.transpose()@np.diag(-b)@A)@A.transpose()@np.diag(-b)@b
 # w = np.linalg.pinv(A.transpose()@np.diag(1/b)@A)@A.transpose()@np.diag(1/b)@b
-# w = np.linalg.pinv(A.transpose()@np.diag(np.exp(max(b) - b))@A)@A.transpose()@np.diag(np.exp(max(b) - b))@b
+# w = np.linalg.pinv(A.transpose()@np.diag(np.exp(max(b) - b))@A)@A.transpose()@np.diag(np.exp(max(b) - b))@b #really bad!
 w = np.linalg.pinv(A.transpose()@(np.diag(ri))@A)@A.transpose()@(np.diag(ri))@b
 print (w)
 # w = np.linalg.pinv(A)@b

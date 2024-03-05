@@ -13,14 +13,16 @@ from sklearn.linear_model import  ElasticNet
 
 
 df = pd.read_csv('NHC7_curated_15m_7_past_12_test.csv')
+# df = pd.read_csv('NHC296_curated_15m_7_past_12_test_low_noise.csv')
+# df = pd.read_csv('NHC1697_WS3_curated_15m_7_past_12_test.csv')
 df['datetime'] = pd.to_datetime(df['datetime'])
 df = df.set_index('datetime')
 
 target = 'level'
-features= ['precip', 'precip_past_12']
-# features= ['precip']
+# features= ['precip', 'precip_past_12']
+features= ['precip']
 
-# df[(df.valid)&(~df.test)]['level'].hist(bins=10)
+# df[(df.valid)&(~df.test)]['level'].hist(bins=100)
 # plt.show()
 df.loc[(df.valid)&(~df.test),'binned'] = np.searchsorted(np.histogram_bin_edges(df[(df.valid)&(~df.test)]['level'].values,bins=100), df[(df.valid)&(~df.test)]['level'].values)
 df.loc[(df.valid)&(~df.test),'bin_size'] = df[(df.valid)&(~df.test)].groupby(df[(df.valid)&(~df.test)].binned)['binned'].transform('count')
@@ -99,9 +101,10 @@ plt.xlim(max(axis),min(axis))
 plt.xticks(np.arange(0,len(w)-1,1))
 plt.show()
 
-
-plt.plot(850-b)
-plt.plot(850 - -(np.dot(A,w)+reg_nnls.intercept_))
+# mean_level = mean_level #NHC7
+mean_level = 1000 #NHC296
+plt.plot(mean_level-b)
+plt.plot(mean_level - -(np.dot(A,w)+reg_nnls.intercept_))
 plt.show()
 
 b_test = []
@@ -118,8 +121,8 @@ b_test = np.array(b_test)
 
 # A_test = np.append(A_test,np.ones([len(A_test),1]),1)
 
-# plt.plot(850-b_test)
-# plt.plot(850 --(A_test@w + reg_nnls.intercept_))
+# plt.plot(mean_level-b_test)
+# plt.plot(mean_level --(A_test@w + reg_nnls.intercept_))
 # plt.show()
 
 ystar_col = 'forecast'
@@ -135,8 +138,8 @@ fig, ax1 = plt.subplots()
 # print(df)
 df.to_csv('test.csv',float_format='%.0f')
 
-# ax1.plot(850 - df[(df.valid)&(df.test)][['level','forecast']]) # Test data
-ax1.plot(850 - df[(df.valid)&(~df.test)][['level','forecast']]) # Train data
+ax1.plot(mean_level - df[(df.valid)&(df.test)][['level','forecast']]) # Test data
+# ax1.plot(mean_level - df[(df.valid)&(~df.test)][['level','forecast']]) # Train data
 
 plt.legend(["level", "prediction"],loc=4)
 plt.ylabel("Stream height change (mm)")

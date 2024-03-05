@@ -1,0 +1,19 @@
+NHC 7
+------
+1. Rejected rainfall events with less than 0.2mm/15mins.
+2. At first, trained on 7 hours of past data only before adding the past 12hr data dimension.
+3. Therefore, each rain event starts with no peak for a few datapoints, gets a peak, returns to prepeak/elevated levels for the remaining 7hr window.
+
+4. When we do least squares regression with Aw + intercept  = -b, since A is positve definite, w is mostly positive and intercept is the
+water level before the rain event, definitely negative.
+5. Least squares gets dominated by before the rain data points becuase there is too many of them, the peaks are lesser in number 
+and are of varying heights.
+6. We need a way to weight the outliers more than the regulars
+    a. weighted least squares where ri = -log(binned frequency/max frequency)
+    b. detect outliers using hampel filter -> flag outliers in a sliding window
+        and do least squares on the outliers
+On NHC7, the hampel approach looks better.
+
+7. Turns out that Non Negative Least Squares gives us all positive weights which is appropriate given A is positive definite.
+8. Lasso sends the smaller weights to zero resulting in a more pleasing weight distribution.
+9. 12hr data results in even better peak description capability, although the weights are less intuitive.

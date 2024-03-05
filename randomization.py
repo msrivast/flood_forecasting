@@ -13,7 +13,7 @@ from neuralnet import ShallowRegressionLSTM
 # from soft_dtw_cuda import SoftDTW
 
 
-df = pd.read_csv('NHC7_curated_15m_7_past_12_test_large_rain.csv')
+df = pd.read_csv('NHC7_curated_15m_7_past_12_test.csv')
 df = df.set_index('datetime')
 
 # # Divide train and test
@@ -93,7 +93,7 @@ print("Target shape:", y.shape)
 
 learning_rate = 5e-5
 # num_hidden_units = 28
-num_hidden_units = 64
+num_hidden_units = 16
 
 # def loss_function(pred,label):
 #     return torch.tensor(np.square((pred - label).detach().numpy()).mean()).double()
@@ -149,7 +149,7 @@ print("Untrained test\n--------")
 test_model(test_loader, model, loss_function)
 print()
 
-for ix_epoch in range(50):
+for ix_epoch in range(500):
     print(f"Epoch {ix_epoch}\n---------")
     train_loss = train_model(train_loader, model, loss_function, optimizer=optimizer)
     test_loss = test_model(test_loader, model, loss_function)
@@ -212,7 +212,7 @@ for c in df_out.columns:
 # print(df_out.iloc[2971])
 
 # # print(df_out[df_out.test])
-df_out.to_csv('predictions.csv', float_format='%.0f')
+# df_out.to_csv('predictions.csv', float_format='%.0f')
 
 
 plt.plot(850-df_out['level'])
